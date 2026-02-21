@@ -173,7 +173,6 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              capture="environment"
               onChange={handleFileChange}
               className="hidden"
             />
@@ -196,7 +195,7 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
                   className="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-4 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
                 >
                   <Camera className="h-4 w-4" />
-                  Take Photo / Upload
+                  Upload Image
                 </button>
               </div>
             )}
