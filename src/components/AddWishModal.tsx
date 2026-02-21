@@ -37,11 +37,28 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    processFile(file);
+  };
+
+  const processFile = (file: File) => {
     setImageFile(file);
     setImageUrl("");
     const reader = new FileReader();
     reader.onload = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) processFile(file);
+        return;
+      }
+    }
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -188,14 +205,17 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
                 </button>
               </div>
             ) : (
-              <div className="mt-1.5 flex gap-2">
+              <div
+                className="mt-1.5 flex flex-col gap-2"
+                onPaste={handlePaste}
+              >
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-4 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                  className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-6 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer"
                 >
-                  <Camera className="h-4 w-4" />
-                  Upload Image
+                  <Camera className="h-5 w-5" />
+                  <span>Upload Image or Paste (Ctrl+V)</span>
                 </button>
               </div>
             )}
