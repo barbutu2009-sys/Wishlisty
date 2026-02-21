@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { WishItem, WishCategory, CATEGORIES } from "@/types/wish";
-import { X, Sparkles, Camera, ImageIcon } from "lucide-react";
+import { X, Sparkles, Camera, ClipboardPaste } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -205,31 +205,29 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
                 </button>
               </div>
             ) : (
-              <div
-                className="mt-1.5 flex flex-col gap-2"
-                onPaste={handlePaste}
-              >
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-6 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer"
-                >
-                  <Camera className="h-5 w-5" />
-                  <span>Upload Image or Paste (Ctrl+V)</span>
-                </button>
-              </div>
-            )}
-            {!imageFile && (
-              <div className="mt-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                  <ImageIcon className="h-3 w-3" /> or paste an image URL
+              <div className="mt-1.5 flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-5 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    <Camera className="h-5 w-5" />
+                    <span>Upload</span>
+                  </button>
+                  <div
+                    contentEditable
+                    onPaste={handlePaste}
+                    onInput={(e) => { e.currentTarget.textContent = ''; }}
+                    className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-5 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer outline-none focus:border-primary/40 focus:text-primary"
+                    role="button"
+                    tabIndex={0}
+                    data-placeholder="true"
+                  >
+                    <ClipboardPaste className="h-5 w-5 pointer-events-none" />
+                    <span className="pointer-events-none">Tap & Paste</span>
+                  </div>
                 </div>
-                <Input
-                  placeholder="https://..."
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="rounded-xl bg-background"
-                />
               </div>
             )}
           </div>
