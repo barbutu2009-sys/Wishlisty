@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Heart, Plus, Lock, Unlock } from "lucide-react";
 
-const SECRET_PIN = "1234"; // Change this to your own secret PIN
+const SECRET_PIN = "9731"; // Change this to your own secret PIN
 
 interface WishlistHeaderProps {
   name: string;
