@@ -1,12 +1,14 @@
-import { Heart, Plus } from "lucide-react";
+import { Heart, Plus, Lock, Unlock } from "lucide-react";
 
 interface WishlistHeaderProps {
   name: string;
   itemCount: number;
   onAddClick: () => void;
+  isBoyfriendMode: boolean;
+  onToggleMode: () => void;
 }
 
-const WishlistHeader = ({ name, itemCount, onAddClick }: WishlistHeaderProps) => {
+const WishlistHeader = ({ name, itemCount, onAddClick, isBoyfriendMode, onToggleMode }: WishlistHeaderProps) => {
   return (
     <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
@@ -19,14 +21,28 @@ const WishlistHeader = ({ name, itemCount, onAddClick }: WishlistHeaderProps) =>
             </p>
           </div>
         </div>
-        <button
-          onClick={onAddClick}
-          className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-200 hover:shadow-card-hover hover:scale-105 active:scale-95"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Add New Wish</span>
-          <span className="sm:hidden">Add</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Secret boyfriend mode toggle */}
+          <button
+            onClick={onToggleMode}
+            className="rounded-full p-2.5 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+            title={isBoyfriendMode ? "Switch to Girlfriend View" : "Switch to Boyfriend View"}
+          >
+            {isBoyfriendMode ? (
+              <Unlock className="h-4 w-4" />
+            ) : (
+              <Lock className="h-4 w-4" />
+            )}
+          </button>
+          <button
+            onClick={onAddClick}
+            className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-200 hover:shadow-card-hover hover:scale-105 active:scale-95"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Add New Wish</span>
+            <span className="sm:hidden">Add</span>
+          </button>
+        </div>
       </div>
     </header>
   );

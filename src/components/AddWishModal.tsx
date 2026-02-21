@@ -25,6 +25,7 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
   const [price, setPrice] = useState("");
   const [url, setUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [notes, setNotes] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -93,6 +94,8 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
       imageUrl: finalImageUrl,
       category,
       priority,
+      notes: notes.trim() || undefined,
+      isBought: false,
     });
 
     setName("");
@@ -103,6 +106,7 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
     setImagePreview(null);
     setUploading(false);
     setCategory("Random");
+    setNotes("");
     setPriority(2);
     onClose();
   };
@@ -241,6 +245,19 @@ const AddWishModal = ({ open, onClose, onAdd }: AddWishModalProps) => {
               placeholder="https://..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              className="mt-1.5 rounded-xl bg-background"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="wish-notes" className="text-sm font-medium text-foreground">
+              Notes / Hints
+            </Label>
+            <Input
+              id="wish-notes"
+              placeholder="e.g. Size 6, rose gold only"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
               className="mt-1.5 rounded-xl bg-background"
             />
           </div>

@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { WishItem, WishCategory } from "@/types/wish";
+import { WishItem, WishCategory, SortOption } from "@/types/wish";
 import WishlistHeader from "@/components/WishlistHeader";
 import CategoryFilter from "@/components/CategoryFilter";
 import WishlistCard from "@/components/WishlistCard";
 import AddWishModal from "@/components/AddWishModal";
+import SortDropdown from "@/components/SortDropdown";
+import SurpriseMeButton from "@/components/SurpriseMeButton";
+import SurpriseModal from "@/components/SurpriseModal";
 import { useToast } from "@/hooks/use-toast";
 import { Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const [items, setItems] = useState<WishItem[]>([]);
   const [category, setCategory] = useState<WishCategory>("All");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [modalOpen, setModalOpen] = useState(false);
+  const [isBoyfriendMode, setIsBoyfriendMode] = useState(false);
+  const [surpriseItem, setSurpriseItem] = useState<WishItem | null>(null);
   const [name] = useState("My Love");
   const { toast } = useToast();
 
@@ -33,6 +39,8 @@ const Index = () => {
             imageUrl: w.image_url ?? undefined,
             category: w.category as WishCategory,
             priority: w.priority as 1 | 2 | 3,
+            notes: w.notes ?? undefined,
+            isBought: w.is_bought ?? false,
             createdAt: new Date(w.created_at).getTime(),
           }))
         );
@@ -67,6 +75,8 @@ const Index = () => {
         image_url: data.imageUrl || null,
         category: data.category,
         priority: data.priority,
+        notes: data.notes || null,
+        is_bought: false,
       });
 
       if (error) {
@@ -90,21 +100,81 @@ const Index = () => {
     [toast, items]
   );
 
+  const toggleBought = useCallback(
+    async (id: string) => {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+
+      const newBought = !item.isBought;
+      const { error } = await supabase
+        .from("wishes")
+        .update({ is_bought: newBought })
+        .eq("id", id);
+
+      if (!error) {
+        toast({
+          title: newBought ? "Marked as bought! 🎁" : "Unmarked",
+          description: newBought
+            ? `"${item.name}" — she'll see a surprise!`
+            : `"${item.name}" is no longer marked as bought.`,
+        });
+      }
+    },
+    [toast, items]
+  );
+
+  // Filter
   const filtered = category === "All" ? items : items.filter((i) => i.category === category);
+
+  // Sort
+  const sorted = [...filtered].sort((a, b) => {
+    switch (sortBy) {
+      case "price-asc":
+        return a.price - b.price;
+      case "price-desc":
+        return b.price - a.price;
+      case "priority-desc":
+        return b.priority - a.priority;
+      case "newest":
+      default:
+        return b.createdAt - a.createdAt;
+    }
+  });
+
+  // Surprise me
+  const handleSurprise = () => {
+    if (sorted.length === 0) return;
+    const random = sorted[Math.floor(Math.random() * sorted.length)];
+    setSurpriseItem(random);
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <WishlistHeader name={name} itemCount={items.length} onAddClick={() => setModalOpen(true)} />
+      <WishlistHeader
+        name={name}
+        itemCount={items.length}
+        onAddClick={() => setModalOpen(true)}
+        isBoyfriendMode={isBoyfriendMode}
+        onToggleMode={() => setIsBoyfriendMode((v) => !v)}
+      />
 
       <main className="container mx-auto px-4 py-6">
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <CategoryFilter active={category} onChange={setCategory} />
+          <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
 
-        {filtered.length > 0 ? (
+        {sorted.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((item, i) => (
-              <WishlistCard key={item.id} item={item} onDelete={deleteItem} index={i} />
+            {sorted.map((item, i) => (
+              <WishlistCard
+                key={item.id}
+                item={item}
+                onDelete={deleteItem}
+                onToggleBought={toggleBought}
+                isBoyfriendMode={isBoyfriendMode}
+                index={i}
+              />
             ))}
           </div>
         ) : (
@@ -119,6 +189,8 @@ const Index = () => {
       </main>
 
       <AddWishModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={addItem} />
+      <SurpriseMeButton onClick={handleSurprise} disabled={sorted.length === 0} />
+      <SurpriseModal item={surpriseItem} onClose={() => setSurpriseItem(null)} />
     </div>
   );
 };
